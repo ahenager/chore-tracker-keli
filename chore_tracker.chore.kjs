@@ -1,0 +1,29 @@
+Chore_Tracker.Chore
+
+# vis _edit
+Name, vis on
+User.Name
+Start_Date
+End_Date
+Start_Time
+End_time
+Value, int, vis on
+Per_Week, int
+Per_Day, int
+--
+Day_Group,
+  fieldgroup 7,
+  block
+# realBool, vis _edit
+Monday, caption 'M', region 'Day_Group_1'
+Tuesday, caption 'T', region 'Day_Group_2'
+Wednesday, caption 'W', region 'Day_Group_3'
+Thursday, caption 'T', region 'Day_Group_4'
+Friday, caption 'F', region 'Day_Group_5'
+Saturday, caption 'S', region 'Day_Group_6'
+Sunday, caption 'S', region 'Day_Group_7'
+# vis off
+Has_Day_Restriction,
+  realBool,
+  c SELECT greatest(Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday)
+#

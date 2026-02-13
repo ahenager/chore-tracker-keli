@@ -1,0 +1,63 @@
+Chore_Tracker,
+  app,
+  db off
+
+[Client, Server]
+function requireSelectedIds(options) {
+  options = options || {};
+  const limit = (options.limit === undefined ? 1000 : options.limit);
+
+  const selectedIds = getSelectedIds(options);
+
+  if (!selectedIds.length) {
+    showError('No records selected.');
+    return [];
+  }
+
+  if (limit && selectedIds.length > limit) {
+    showError(`Please select only up to ${displayNumber(limit)} ${plural('record', limit)}`);
+    return [];
+  }
+
+  return selectedIds;
+}
+
+[Client, Server]
+function getChoreFilter(userId) {
+  return (
+    WHERE (nullif(Per_Day, 0) IS NULL OR NOT EXISTS (
+      SELECT Chore FROM Assignment 
+      WHERE Assignment.Chore = Chore_Tracker__Chore.Id AND Assignment.Done IS TRUE AND
+        Date = :dateStamp('c')
+      GROUP BY Chore
+      HAVING COUNT(Id) >= Chore_Tracker__Chore.Per_Day
+      )) AND (User IS NULL OR User = :userId) AND
+      ((nullif(trim(Start_Date), '') IS NULL OR Start_Date <= keynow()) AND ((nullif(trim(End_Date), '') IS NULL OR End_Date >= left(keynow(), 10)))) AND
+      ((nullif(trim(Start_Time), '') IS NULL OR Start_Time <= substring(keynow(), 12)) AND ((nullif(trim(End_Time), '') IS NULL OR End_Time >= substring(keynow(), 12)))) AND
+      (nullif(Per_Week, 0) IS NULL OR NOT EXISTS (
+        SELECT Chore FROM Assignment 
+        WHERE Assignment.Chore = Chore_Tracker__Chore.Id AND Assignment.Done IS TRUE AND
+          cast(Date AS date) >= cast(date_trunc('week', now()) AS date) AND cast(Date AS date) <= cast(date_trunc('week', now()) as date) + 6
+        GROUP BY Chore
+        HAVING COUNT(Id) >= Chore_Tracker__Chore.Per_Week
+      )) AND ((
+        Has_Day_Restriction IS NOT TRUE OR
+        (Monday IS TRUE AND date_part('dow', cast(now() AS date) - 1) = 0) OR
+        (Tuesday IS TRUE AND date_part('dow', cast(now() AS date) - 1) = 1) OR
+        (Wednesday IS TRUE AND date_part('dow', cast(now() AS date) - 1) = 2) OR
+        (Thursday IS TRUE AND date_part('dow', cast(now() AS date) - 1) = 3) OR
+        (Friday IS TRUE AND date_part('dow', cast(now() AS date) - 1) = 4) OR
+        (Saturday IS TRUE AND date_part('dow', cast(now() AS date) - 1) = 5) OR
+        (Sunday IS TRUE AND date_part('dow', cast(now() AS date) - 1) = 6)))
+  );
+}
+
+[Client, Server]
+function completeChore(choreIds, user) {
+  if (!choreIds.length) {
+    return;
+  }
+  const date = dateStamp('c');
+  const assignments = choreIds.map(chore => ({chore, user, date, done: true}));
+  save('Assignment', assignments);
+}

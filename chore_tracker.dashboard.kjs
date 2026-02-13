@@ -1,0 +1,57 @@
+Chore_Tracker.Dashboard,
+  db off,
+  bp mode = 'edit',
+  menu,
+  menuCaption 'Chores',
+  launchPad,
+  icon 'account-hard-hat-outline',
+  insertable off,
+  deletable off
+  
+
+# vis off
+Day_Of_The_Week, value lower(getDayText('c'))
+Week_Start_Date, value dateStamp(startOfWeek('c'))
+Week_End_Date, value dateStamp(endOfWeek('c'))
+#
+
+Done,
+  bu,
+  region 'toolbar',
+  ac completeChore(Chores->requireSelectedIds(), User),
+  icon 'check'
+
+User.Name,
+  display
+
+Chores,
+  table 'Chore',
+  o (ORDER BY Value DESC),
+  f getChoreFilter(_top.User.Id),
+  ac.1 {
+    const done = ask(`Did you complete ${Name}?`);
+    if (done) {
+      _top->completeChore([row.self], _top.User);
+    }
+    stop();
+  }
+
+[Client]
+function menuAction() {
+  const {Id: User} = s('User');
+  edit('Dashboard', {User});
+}
+
+// Day_Mask = 0 OR (cast(Day_Mask AS int) & cast(power(2, cast(date_part('dow', cast(now() AS date) - 1) AS int)) AS int) > 0)
+
+
+/*
+0000000
+0 1
+1 2
+2 4
+3 8
+4 16
+5 32
+6 64
+*/

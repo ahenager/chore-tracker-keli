@@ -1,0 +1,42 @@
+Chore_Tracker.API,
+  db off,
+  restAPI
+
+
+[Server, Access 'Chore_Tracker.Application', Rest]
+function getUserList(request) {
+  if (request.method !== 'GET') {
+    const err = new Error('Method Not Allowed');
+    err.code = 405;
+    throw err;
+  }
+  return prepAPIResults(query(SELECT Name, Id FROM User));
+}
+
+[Server, Access 'Chore_Tracker.Application', Rest]
+function retrieveTasks(request) {
+  if (request.method !== 'GET') {
+    const err = new Error('Method Not Allowed');
+    err.code = 405;
+    throw err;
+  }
+  const {user} = request.query || {};
+  return prepAPIResults(query((SELECT Name, Id, Value FROM Chore AS Chore_Tracker__Chore ORDER BY Value DESC).and(getChoreFilter(user))));
+}
+
+[Server, Access 'Chore_Tracker.Application', Rest]
+function completeTask(request) {
+  if (request.method !== 'POST') {
+    const err = new Error('Method Not Allowed');
+    err.code = 405;
+    throw err;
+  }
+  const {task, user} = request.body;
+  completeChore([task], user);
+}
+
+[Server]
+function prepAPIResults(value) {
+  delete value.$_replacer;
+  return value;
+}
