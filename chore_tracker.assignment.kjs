@@ -3,6 +3,10 @@ Chore_Tracker.Assignment
 Date
 Chore.Name
 User.Name
-Done, realBool
-Approved, realBool, access 'chore_tracker.supervisor'
-Chore.Value
+Done,
+  realBool
+Approved, 
+  realBool,
+  access 'chore_tracker.supervisor'
+Value,
+  int

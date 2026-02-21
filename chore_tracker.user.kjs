@@ -1,3 +1,18 @@
 Chore_Tracker.User
 
 Name
+Daily_Goal,
+  int
+Weekly_Goal,
+  int
+Daily_Total,
+  int,
+  c SELECT sum(Value) FROM Assignment WHERE User = NEW.Id AND Date = NEW.Calculation_Date
+Weekly_Total,
+  int,
+  c SELECT sum(Value) FROM Assignment 
+    WHERE User = NEW.Id AND date_trunc('week', NEW.Calculation_Date::date) = date_trunc('week', Date::date)
+# vis off
+Calculation_Date, // Below is a little hack to get things to update when an assignment is added
+  c SELECT coalesce(max(left(keynow(), 10)), left(keynow(), 10)) FROM Assignment WHERE User = NEW.Id
+#

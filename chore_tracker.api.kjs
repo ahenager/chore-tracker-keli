@@ -21,7 +21,11 @@ function retrieveTasks(request) {
     throw err;
   }
   const {user} = request.query || {};
-  return prepAPIResults(query((SELECT Name, Id, Value FROM Chore AS Chore_Tracker__Chore ORDER BY Value DESC).and(getChoreFilter(user))));
+  const tasks = prepAPIResults(query((SELECT Name, Id, Value FROM Chore AS Chore_Tracker__Chore ORDER BY Value DESC).and(getChoreFilter(user))));
+  const today = dateStamp('c');
+  query(UPDATE User SET Calculation_Date = :today WHERE Calculation_Date != :today);
+  const goals = q(SELECT Daily_Goal AS daily, Weekly_Goal AS weekly, Daily_Total as day, Weekly_Total AS week FROM User WHERE Id = :user);
+  return {tasks, goals};
 }
 
 [Server, Access 'Chore_Tracker.Application', Rest]
@@ -33,6 +37,8 @@ function completeTask(request) {
   }
   const {task, user} = request.body;
   completeChore([task], user);
+  const goals = q(SELECT Daily_Goal AS daily, Weekly_Goal AS weekly, Daily_Total as day, Weekly_Total AS week FROM User WHERE Id = :user);
+  return prepAPIResults({goals});
 }
 
 [Server]

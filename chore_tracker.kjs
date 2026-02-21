@@ -58,6 +58,7 @@ function completeChore(choreIds, user) {
     return;
   }
   const date = dateStamp('c');
-  const assignments = choreIds.map(chore => ({chore, user, date, done: true}));
+  const values = qk(SELECT Id, Value FROM Chore WHERE Id IN :choreIds);
+  const assignments = choreIds.map(chore => ({chore, user, date, done: true, value: values[chore]}));
   save('Assignment', assignments);
 }
