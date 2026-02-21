@@ -1,4 +1,7 @@
-Chore_Tracker.Assignment
+Chore_Tracker.Assignment,
+  menu,
+  launchPad,
+  icon 'assignment'
 
 Date
 Chore.Name

@@ -1,4 +1,7 @@
-Chore_Tracker.User
+Chore_Tracker.User,
+  menu,
+  launchPad,
+  icon 'person'
 
 Name
 Daily_Goal,
