@@ -10,7 +10,7 @@ function getUserList(request) {
     err.code = 405;
     throw err;
   }
-  return prepAPIResults(query(SELECT Name, Id FROM User));
+  return prepAPIResults(query(SELECT Name, Id FROM User ORDER BY Name));
 }
 
 [Server, Access 'Chore_Tracker.Application', Rest]
@@ -36,9 +36,20 @@ function completeTask(request) {
     throw err;
   }
   const {task, user} = request.body;
-  completeChore([task], user);
+  const [id] = completeChore([task], user);
   const goals = q(SELECT Daily_Goal AS daily, Weekly_Goal AS weekly, Daily_Total as day, Weekly_Total AS week FROM User WHERE Id = :user);
-  return prepAPIResults({goals});
+  return {id, goals};
+}
+
+[Server, Access 'Chore_Tracker.Application', Rest]
+function uncompleteTask(request) {
+  if (request.method !== 'POST') {
+    const err = new Error('Method Not Allowed');
+    err.code = 405;
+    throw err;
+  }
+  const {id} = request.body;
+  expire('Assignment', WHERE Id = :id);
 }
 
 [Server]
