@@ -25,12 +25,13 @@ function requireSelectedIds(options) {
 [Client, Server]
 function getChoreFilter(userId) {
   return (
-    WHERE (nullif(Per_Day, 0) IS NULL OR NOT EXISTS (
-      SELECT Chore FROM Assignment 
-      WHERE Assignment.Chore = Chore_Tracker__Chore.Id AND Assignment.Done IS TRUE AND
-        Date = :dateStamp('c')
-      GROUP BY Chore
-      HAVING COUNT(Id) >= Chore_Tracker__Chore.Per_Day
+    WHERE nullif(Name, '') IS NOT NULL AND nullif(Value, 0) IS NOT NULL AND 
+      (nullif(Per_Day, 0) IS NULL OR NOT EXISTS (
+        SELECT Chore FROM Assignment 
+        WHERE Assignment.Chore = Chore_Tracker__Chore.Id AND Assignment.Done IS TRUE AND
+          Date = :dateStamp('c')
+        GROUP BY Chore
+        HAVING COUNT(Id) >= Chore_Tracker__Chore.Per_Day
       )) AND (User IS NULL OR User = :userId) AND
       ((nullif(trim(Start_Date), '') IS NULL OR Start_Date <= keynow()) AND ((nullif(trim(End_Date), '') IS NULL OR End_Date >= left(keynow(), 10)))) AND
       ((nullif(trim(Start_Time), '') IS NULL OR Start_Time <= substring(keynow(), 12)) AND ((nullif(trim(End_Time), '') IS NULL OR End_Time >= substring(keynow(), 12)))) AND

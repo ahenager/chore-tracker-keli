@@ -1,16 +1,13 @@
-Chore_Tracker.Chore,
-  menu,
-  launchPad,
-  icon 'pickaxe'
+Chore_Tracker.Chore
 
 # vis _edit
-Name, vis on
+Name, vis on, required
 User.Name
 Start_Date
 End_Date
 Start_Time
 End_time
-Value, int, vis on
+Value, int, vis on, required
 Per_Week, int
 Per_Day, int
 --
