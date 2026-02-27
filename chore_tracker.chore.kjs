@@ -1,4 +1,7 @@
-Chore_Tracker.Chore
+Chore_Tracker.Chore,
+  menu,
+  launchPad,
+  icon 'pickaxe'
 
 # vis _edit
 Name, vis on, required
