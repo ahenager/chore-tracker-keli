@@ -82,7 +82,7 @@ function buildWeeklyChartData(userId, dailyGoal, weekDate) {
     result.push({
       caption: dayNames[d],
       completed: total,
-      goal: dailyGoal - total,
+      goal: Math.max(0, dailyGoal - Math.max(0, total)),
       date: dateStamp(addDays(monday, d))
     });
   }
