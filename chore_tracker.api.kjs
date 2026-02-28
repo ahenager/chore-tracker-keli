@@ -21,7 +21,21 @@ function retrieveTasks(request) {
     throw err;
   }
   const {user} = request.query || {};
-  const tasks = prepAPIResults(query((SELECT Name, Id, Value FROM Chore AS Chore_Tracker__Chore ORDER BY Value DESC).and(getChoreFilter(user))));
+  const tasks = prepAPIResults(query((SELECT Name, Id, Value, Start_Time, End_Time FROM Chore AS Chore_Tracker__Chore ORDER BY Value DESC).and(getChoreFilter(user))));
+  for (const task of tasks) {
+    if (task.End_Time) {
+      task.Start_Time = task.Start_Time || startOfDay('c');
+      const total = differenceInMinutes(task.End_Time, task.Start_Time);
+      const elapsed = differenceInMinutes('c', task.Start_Time);
+      task.remaining = total > 0 ? Math.max(0, Math.min(100, Math.round(((total - elapsed) / total) * 100))) : 0;
+    } else {
+      task.remaining = null;
+    }
+    task.start = task.Start_Time ? displayTime(task.Start_Time) : null;
+    task.end = task.End_Time ? displayTime(task.End_Time) : null;
+    delete task.Start_Time;
+    delete task.End_Time;
+  }
   const today = dateStamp('c');
   query(UPDATE User SET Calculation_Date = :today WHERE Calculation_Date != :today);
   const goals = q(SELECT Daily_Goal AS daily, Weekly_Goal AS weekly, Daily_Total as day, Weekly_Total AS week FROM User WHERE Id = :user);
