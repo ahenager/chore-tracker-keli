@@ -1,13 +1,23 @@
 Chore_Tracker.User,
   menu,
   launchPad,
-  icon 'person'
+  icon 'person',
+  lp Week_Date = dateStamp('c'),
 
 Name
 Daily_Goal,
   int
 Weekly_Goal,
   int
+
+# bu, region 'toolbar'
+This_Week, ac { Week_Date = dateStamp('c'); updateWeeklyChart(); }
+Last_Week, ac { Week_Date = addDays(Week_Date, -7); updateWeeklyChart(); }
+#
+
+-- 'Progress'
+Week_Date, date, db off,
+  ac updateWeeklyChart()
 Daily_Total,
   int,
   c SELECT sum(Value) FROM Assignment WHERE User = NEW.Id AND Date = NEW.Calculation_Date
@@ -15,9 +25,66 @@ Weekly_Total,
   int,
   c SELECT sum(Value) FROM Assignment 
     WHERE User = NEW.Id AND date_trunc('week', NEW.Calculation_Date::date) = date_trunc('week', Date::date)
+--
+Weekly_Chart, barchart, stacked on, height 250,
+  labelKeys [
+    {name: 'caption', caption: 'Day'}
+  ],
+  valueKeys [
+    {name: 'completed', caption: 'Completed', color: 'green600'},
+    {name: 'goal', caption: 'Goal', color: 'grey400'},
+  ],
+  data buildWeeklyChartData(_top.Id, _top.Daily_Goal, _top.Week_Date),
+  ac browse('Assignment', {'Browse.f': WHERE Date = :e.detail.data.date AND User = :_top.Id})
+
+-- 'Chores'
 Chore,
   childTable
 # vis off
 Calculation_Date, // Below is a little hack to get things to update when an assignment is added
   c SELECT coalesce(max(left(keynow(), 10)), left(keynow(), 10)) FROM Assignment WHERE User = NEW.Id
 #
+
+[Client]
+function updateWeeklyChart() {
+  Weekly_Chart->reloadData({stats: false});
+}
+
+[Server, Access 'chore_tracker']
+function buildWeeklyChartData(userId, dailyGoal, weekDate) {
+  if (!weekDate) return [];
+
+  const monday = dateStamp(startOfISOWeek(weekDate));
+  const sunday = dateStamp(addDays(monday, 6));
+
+  const completedData = query(
+    SELECT
+      cast(date_part('isodow', cast(Date AS date)) AS int) AS day_num,
+      coalesce(sum(Value), 0) AS total
+    FROM Assignment
+    WHERE User = :userId
+      AND Done IS TRUE
+      AND Date >= :monday
+      AND Date <= :sunday
+    GROUP BY day_num
+  );
+
+  const dayTotals = {};
+  for (const row of completedData) {
+    dayTotals[row.day_num] = row.total;
+  }
+
+  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const result = [];
+  for (let d = 0; d < 7; d++) {
+    const isoDay = d + 1;
+    const total = dayTotals[isoDay] || 0;
+    result.push({
+      caption: dayNames[d],
+      completed: total,
+      goal: dailyGoal - total,
+      date: dateStamp(addDays(monday, d))
+    });
+  }
+  return result;
+}
