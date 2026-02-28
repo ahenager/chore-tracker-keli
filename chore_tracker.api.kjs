@@ -21,7 +21,23 @@ function retrieveTasks(request) {
     throw err;
   }
   const {user} = request.query || {};
-  const tasks = prepAPIResults(query((SELECT Name, Id, Value, Start_Time, End_Time FROM Chore AS Chore_Tracker__Chore ORDER BY Value DESC).and(getChoreFilter(user))));
+  const taskQuery = (
+    WITH today_counts AS (
+      SELECT Chore, COUNT(Id) AS count FROM Assignment WHERE User = :user AND Date = :dateStamp('c') GROUP BY Chore
+    ) 
+    SELECT
+      Id, 
+      Name, 
+      Value, 
+      Start_Time, 
+      End_Time, 
+      coalesce(tc.count, 0) AS count 
+      FROM Chore AS Chore_Tracker__Chore 
+      LEFT JOIN today_counts AS tc ON tc.Chore = Chore_Tracker__Chore.Id 
+      ORDER BY Value DESC
+  );
+  taskQuery.query.and(getChoreFilter(user));
+  const tasks = prepAPIResults(query(taskQuery));
   for (const task of tasks) {
     if (task.End_Time) {
       task.Start_Time = task.Start_Time || startOfDay('c');
