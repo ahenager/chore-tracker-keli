@@ -4,12 +4,18 @@ Chore_Tracker.Assignment,
   icon 'assignment'
 
 Date
-Chore.Name
+Chore.Name,
+  ac Value = Chore.Value
 User.Name
 Done,
-  realBool
+  realBool,
+  init true
 Approved, 
   realBool,
   access 'chore_tracker.supervisor'
 Value,
   int
+
+Chore.Value,
+  vis off,
+  lazy off
