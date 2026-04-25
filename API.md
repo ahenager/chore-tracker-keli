@@ -103,6 +103,43 @@ Success (200 OK) with no content.
 
 ---
 
+## `GET /retrieveAllTasks`
+
+Retrieves a complete list of all chores available to a user, including chores assigned specifically to that user and chores not assigned to any user. No date, time, or usage restrictions are applied.
+
+**Request Method:** `GET`
+
+**Query Parameters:**
+* `user` (string, required): The ID of the User.
+* `search` (string, optional): A case-insensitive POSIX regular expression pattern to filter chores by.
+  * `.` matches any single character.
+  * `.*` matches any sequence of characters.
+  * `|` matches either expression (e.g., `dust|vacuum`).
+  * Character classes like `[a-z]` are supported.
+  * `^` and `$` anchor to the start and end of the string, respectively.
+  * Example: `search=dust` matches "Dust Shelves".
+
+**Response:**
+Returns an array of chore objects.
+```json
+{
+  "tasks": [
+    {
+      "id": "string",
+      "name": "string",
+      "value": "number",
+      "startDate": "string (or null)",
+      "endDate": "string (or null)",
+      "startTime": "string (or null)",
+      "endTime": "string (or null)",
+      "createdDate": "string"
+    }
+  ]
+}
+```
+
+---
+
 ## `GET /getWeeklyData`
 
 Retrieves aggregated chore data for a specific user and week, including weekly goal progress and a list of all assigned/completed tasks for that week.

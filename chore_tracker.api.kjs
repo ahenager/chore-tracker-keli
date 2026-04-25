@@ -83,6 +83,53 @@ function uncompleteTask(request) {
 }
 
 [Server, Access 'Chore_Tracker.Application', Rest]
+function retrieveAllTasks(request) {
+  if (request.method !== 'GET') {
+    const err = new Error('Method Not Allowed');
+    err.code = 405;
+    throw err;
+  }
+  const {user, search} = request.query || {};
+  if (!user) {
+    const err = new Error('Missing user');
+    err.code = 400;
+    throw err;
+  }
+
+  const taskQuery = (
+    SELECT
+      Id,
+      Name,
+      Value,
+      Start_Date,
+      End_Date,
+      Start_Time,
+      End_Time,
+      Created_Date
+    FROM Chore
+    WHERE (User IS NULL OR User = :user)
+    ORDER BY Name
+  );
+
+  if (search) {
+    taskQuery.where = (WHERE (Name ~* :search)).and(taskQuery.where);
+  }
+
+  const tasks = prepAPIResults(query(taskQuery)).map(({Id, Name, Value, Start_Date, End_Date, Start_Time, End_Time, Created_Date}) => ({
+    'id': Id,
+    'name': Name,
+    'value': Value,
+    'startDate': Start_Date,
+    'endDate': End_Date,
+    'startTime': Start_Time,
+    'endTime': End_Time,
+    'createdDate': Created_Date
+  }));
+
+  return {tasks};
+}
+
+[Server, Access 'Chore_Tracker.Application', Rest]
 function getWeeklyData(request) {
   if (request.method !== 'GET') {
     const err = new Error('Method Not Allowed');
