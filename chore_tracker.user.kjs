@@ -13,6 +13,7 @@ Weekly_Goal,
 # bu, region 'toolbar'
 This_Week, ac { Week_Date = dateStamp('c'); updateWeeklyChart(); }
 Last_Week, ac { Week_Date = addDays(Week_Date, -7); updateWeeklyChart(); }
+Add_Assignment, ac { insert('Assignment', {User: Id}); }
 #
 
 -- 'Progress'

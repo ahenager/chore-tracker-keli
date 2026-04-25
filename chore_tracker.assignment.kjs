@@ -4,9 +4,11 @@ Chore_Tracker.Assignment,
   icon 'assignment'
 
 Date
-Chore.Name,
-  ac Value = Chore.Value
 User.Name
+Chore.Name,
+  ac Value = Chore.Value,
+  f (_top.User) WHERE User IS NULL OR User = :_top.User,
+  lookupHintFields ['User.Name', 'Value']
 Done,
   realBool,
   init true

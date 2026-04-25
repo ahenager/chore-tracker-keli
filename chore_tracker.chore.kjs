@@ -3,6 +3,13 @@ Chore_Tracker.Chore,
   launchPad,
   icon 'pickaxe'
 
+# region 'toolbar', bu, mode _browse
+Remove_Filter_Button,
+  ac Browse->resetParam('_t.f, _t.uf'),
+  vis !!Browse.f,
+  caption 'Show All'
+#
+
 Name, vis on, required, proper
 Value, int, vis on, required
 User.Name
