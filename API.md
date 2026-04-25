@@ -69,6 +69,7 @@ Marks a task (chore) as completed by a user, creating an `Assignment` record.
 **Body Parameters (JSON):**
 * `task` (string, required): The ID of the Chore to complete.
 * `user` (string, required): The ID of the User completing the chore.
+* `date` (string, optional): A date to use for the assignment instead of the current date. Almost any date format can be used here.
 
 **Response:**
 Returns the ID of the newly created Assignment and the user's updated goals/totals.

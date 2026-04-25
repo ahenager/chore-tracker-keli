@@ -65,8 +65,8 @@ function completeTask(request) {
     err.code = 405;
     throw err;
   }
-  const {task, user} = request.body;
-  const [id] = completeChore([task], user);
+  const {task, user, date} = request.body;
+  const [id] = completeChore([task], user, date && dateStamp(date));
   const goals = q(SELECT Daily_Goal AS daily, Weekly_Goal AS weekly, Daily_Total as day, Weekly_Total AS week FROM User WHERE Id = :user);
   return {id, goals};
 }

@@ -54,11 +54,11 @@ function getChoreFilter(userId) {
 }
 
 [Client, Server]
-function completeChore(choreIds, user) {
+function completeChore(choreIds, user, date) {
   if (!choreIds.length) {
     return;
   }
-  const date = dateStamp('c');
+  date = date || dateStamp('c');
   const values = qk(SELECT Id, Value FROM Chore WHERE Id IN :choreIds);
   const assignments = choreIds.map(chore => ({id: this.uuid(), chore, user, date, done: true, value: values[chore]}));
   save('Assignment', assignments);
