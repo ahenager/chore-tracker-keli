@@ -41,6 +41,7 @@ Returns an object containing the user's available tasks for today and their goal
       "Id": "string",
       "Name": "string",
       "Value": "number",
+      "Main_Quest": "boolean (whether the chore is a main quest)",
       "count": "number (number of times completed today)",
       "remaining": "number (percentage of time remaining for time-restricted tasks, or null)",
       "start": "string (formatted start time, or null)",
@@ -128,6 +129,7 @@ Returns an array of chore objects.
       "id": "string",
       "name": "string",
       "value": "number",
+      "mainQuest": "boolean (whether the chore is a main quest)",
       "startDate": "string (or null)",
       "endDate": "string (or null)",
       "startTime": "string (or null)",
@@ -161,7 +163,8 @@ Returns the weekly goal, total points earned in the week, and an array of task o
       "id": "string (Chore ID)",
       "name": "string (Chore Name)",
       "count": "number (Number of times completed in the week)",
-      "value": "number (Point value of the chore)"
+      "value": "number (Point value of the chore)",
+      "mainQuest": "boolean (whether the chore is a main quest)"
     }
   ]
 }

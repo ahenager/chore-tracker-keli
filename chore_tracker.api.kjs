@@ -29,6 +29,7 @@ function retrieveTasks(request) {
       Id, 
       Name, 
       Value, 
+      Main_Quest, 
       Start_Time, 
       End_Time, 
       coalesce(tc.count, 0) AS count 
@@ -101,6 +102,7 @@ function retrieveAllTasks(request) {
       Id,
       Name,
       Value,
+      Main_Quest,
       Start_Date,
       End_Date,
       Start_Time,
@@ -115,10 +117,11 @@ function retrieveAllTasks(request) {
     taskQuery.where = (WHERE (Name ~* :search)).and(taskQuery.where);
   }
 
-  const tasks = prepAPIResults(query(taskQuery)).map(({Id, Name, Value, Start_Date, End_Date, Start_Time, End_Time, Created_Date}) => ({
+  const tasks = prepAPIResults(query(taskQuery)).map(({Id, Name, Value, Main_Quest, Start_Date, End_Date, Start_Time, End_Time, Created_Date}) => ({
     'id': Id,
     'name': Name,
     'value': Value,
+    'mainQuest': Main_Quest,
     'startDate': Start_Date,
     'endDate': End_Date,
     'startTime': Start_Time,
@@ -164,7 +167,7 @@ function getWeeklyData(request) {
       GROUP BY Chore
     ),
     week_chores AS (
-      SELECT Id, Name, Value
+      SELECT Id, Name, Value, Main_Quest
       FROM Chore
       WHERE User = :user 
         AND (Start_Date IS NULL OR Start_Date <= :sunday)
@@ -174,7 +177,8 @@ function getWeeklyData(request) {
       coalesce(c.Id, a.Chore) AS id,
       coalesce(c.Name, ch.Name) AS name,
       coalesce(a.count, 0) AS count,
-      coalesce(a.value, c.Value, ch.Value) AS value
+      coalesce(a.value, c.Value, ch.Value) AS value,
+      coalesce(c.Main_Quest, ch.Main_Quest) AS mainQuest
     FROM week_chores AS c
     FULL JOIN week_assignments AS a ON a.Chore = c.Id
     LEFT JOIN Chore AS ch ON ch.Id = a.Chore AND c.Id IS NULL
