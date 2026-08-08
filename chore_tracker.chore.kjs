@@ -13,7 +13,8 @@ Remove_Filter_Button,
 Name, vis on, required, proper
 Value, int, vis on, required
 Main_Quest, realBool
-User.Name
+User.Name,
+  ac Main_Quest = !!e.value
 Start_Date
 End_Date
 Start_Time
