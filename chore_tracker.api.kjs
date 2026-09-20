@@ -224,7 +224,7 @@ function getCompletedTasks(request) {
     LEFT JOIN Chore AS c ON c.Id = a.Chore
     LEFT JOIN User AS u ON u.Id = a.User
     WHERE a.Done IS TRUE AND a.Date >= :startStamp AND a.Date <= :endStamp
-    ORDER BY a.Date DESC
+    ORDER BY a.Date
   );
 
   if (task) {
