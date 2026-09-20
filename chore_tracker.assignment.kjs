@@ -12,9 +12,9 @@ Chore.Name,
 Done,
   realBool,
   init true
-Approved, 
+Approved,
   realBool,
-  access 'chore_tracker.supervisor'
+  access {read: 'chore_tracker', d: 'chore_tracker.supervisor'}
 Value,
   int
 

@@ -24,17 +24,17 @@ function retrieveTasks(request) {
   const taskQuery = (
     WITH today_counts AS (
       SELECT Chore, COUNT(Id) AS count FROM Assignment WHERE User = :user AND Date = :dateStamp('c') GROUP BY Chore
-    ) 
+    )
     SELECT
-      Id, 
-      Name, 
-      Value, 
-      Main_Quest, 
-      Start_Time, 
-      End_Time, 
-      coalesce(tc.count, 0) AS count 
-      FROM Chore AS Chore_Tracker__Chore 
-      LEFT JOIN today_counts AS tc ON tc.Chore = Chore_Tracker__Chore.Id 
+      Id,
+      Name,
+      Value,
+      Main_Quest,
+      Start_Time,
+      End_Time,
+      coalesce(tc.count, 0) AS count
+      FROM Chore AS Chore_Tracker__Chore
+      LEFT JOIN today_counts AS tc ON tc.Chore = Chore_Tracker__Chore.Id
       ORDER BY Value DESC
   );
   taskQuery.query.and(getChoreFilter(user));
@@ -150,7 +150,7 @@ function getWeeklyData(request) {
   const sunday = dateStamp(addDays(monday, 6));
 
   const {goal, total} = q(
-    SELECT 
+    SELECT
       u.Weekly_Goal AS goal,
       coalesce(sum(a.Value), 0) AS total
     FROM User AS u
@@ -162,18 +162,18 @@ function getWeeklyData(request) {
   const taskQuery = (
     WITH week_assignments AS (
       SELECT Chore, count(Id) AS count, max(Value) AS value
-      FROM Assignment 
+      FROM Assignment
       WHERE User = :user AND Date >= :monday AND Date <= :sunday
       GROUP BY Chore
     ),
     week_chores AS (
       SELECT Id, Name, Value, Main_Quest
       FROM Chore
-      WHERE User = :user 
+      WHERE User = :user
         AND (Start_Date IS NULL OR Start_Date <= :sunday)
         AND (End_Date IS NULL OR End_Date >= :monday)
     )
-    SELECT 
+    SELECT
       coalesce(c.Id, a.Chore) AS id,
       coalesce(c.Name, ch.Name) AS name,
       coalesce(a.count, 0) AS count,
@@ -223,18 +223,18 @@ function getCompletedTasks(request) {
     FROM Assignment AS a
     LEFT JOIN Chore AS c ON c.Id = a.Chore
     LEFT JOIN User AS u ON u.Id = a.User
-    WHERE a.Done = true AND a.Date >= :startStamp AND a.Date <= :endStamp
+    WHERE a.Done IS TRUE AND a.Date >= :startStamp AND a.Date <= :endStamp
     ORDER BY a.Date DESC
   );
 
   if (task) {
-    taskQuery.where = (WHERE a.Chore = {task}).and(taskQuery.where);
+    taskQuery.where = (WHERE a.Chore = :task).and(taskQuery.where);
   }
   if (search) {
-    taskQuery.where = (WHERE c.Name ~* {search}).and(taskQuery.where);
+    taskQuery.where = (WHERE c.Name ~* :search).and(taskQuery.where);
   }
   if (user) {
-    taskQuery.where = (WHERE a.User = {user}).and(taskQuery.where);
+    taskQuery.where = (WHERE a.User = :user).and(taskQuery.where);
   }
 
   const tasks = prepAPIResults(query(taskQuery)).map(({Id, Date, Value, Approved, taskId, taskName, userName}) => ({
