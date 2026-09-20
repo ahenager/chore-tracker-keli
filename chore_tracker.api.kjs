@@ -194,6 +194,62 @@ function getWeeklyData(request) {
   };
 }
 
+[Server, Access 'Chore_Tracker.Application', Rest]
+function getCompletedTasks(request) {
+  if (request.method !== 'GET') {
+    const err = new Error('Method Not Allowed');
+    err.code = 405;
+    throw err;
+  }
+  const {startDate, endDate, task, search, user} = request.query || {};
+  if (!startDate || !endDate) {
+    const err = new Error('Missing startDate or endDate');
+    err.code = 400;
+    throw err;
+  }
+
+  const startStamp = dateStamp(startDate);
+  const endStamp = dateStamp(endDate);
+
+  const taskQuery = (
+    SELECT
+      a.Id,
+      a.Date,
+      a.Value,
+      a.Approved,
+      c.Id AS taskId,
+      c.Name AS taskName,
+      u.Name AS userName
+    FROM Assignment AS a
+    LEFT JOIN Chore AS c ON c.Id = a.Chore
+    LEFT JOIN User AS u ON u.Id = a.User
+    WHERE a.Done = true AND a.Date >= :startStamp AND a.Date <= :endStamp
+    ORDER BY a.Date DESC
+  );
+
+  if (task) {
+    taskQuery.where = (WHERE a.Chore = {task}).and(taskQuery.where);
+  }
+  if (search) {
+    taskQuery.where = (WHERE c.Name ~* {search}).and(taskQuery.where);
+  }
+  if (user) {
+    taskQuery.where = (WHERE a.User = {user}).and(taskQuery.where);
+  }
+
+  const tasks = prepAPIResults(query(taskQuery)).map(({Id, Date, Value, Approved, taskId, taskName, userName}) => ({
+    'id': Id,
+    'date': Date,
+    'value': Value,
+    'approved': Approved,
+    'taskId': taskId,
+    'taskName': taskName,
+    'userName': userName
+  }));
+
+  return {tasks};
+}
+
 [Server]
 function prepAPIResults(value) {
   delete value.$_replacer;

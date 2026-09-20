@@ -142,6 +142,45 @@ Returns an array of chore objects.
 
 ---
 
+## `GET /getCompletedTasks`
+
+Retrieves completed tasks (Assignments with `Done = true`) within a date range, optionally filtered by task ID, task name, or user.
+
+**Request Method:** `GET`
+
+**Query Parameters:**
+* `startDate` (string, required): Inclusive lower bound of the assignment date. Almost any date format can be used here.
+* `endDate` (string, required): Inclusive upper bound of the assignment date.
+* `task` (string, optional): The ID of the Chore to filter by.
+* `search` (string, optional): A case-insensitive POSIX regular expression pattern to filter by chore name (same as `retrieveAllTasks`).
+  * `.` matches any single character.
+  * `.*` matches any sequence of characters.
+  * `|` matches either expression (e.g., `dust|vacuum`).
+  * Character classes like `[a-z]` are supported.
+  * `^` and `$` anchor to the start and end of the string, respectively.
+  * Example: `search=dust` matches "Dust Shelves".
+* `user` (string, optional): The ID of the User to filter by.
+
+**Response:**
+Returns an array of completed assignment objects.
+```json
+{
+  "tasks": [
+    {
+      "id": "string (Assignment ID)",
+      "date": "string (assignment date)",
+      "value": "number (point value)",
+      "approved": "boolean",
+      "taskId": "string (Chore ID)",
+      "taskName": "string (Chore Name)",
+      "userName": "string (User Name)"
+    }
+  ]
+}
+```
+
+---
+
 ## `GET /getWeeklyData`
 
 Retrieves aggregated chore data for a specific user and week, including weekly goal progress and a list of all assigned/completed tasks for that week.
